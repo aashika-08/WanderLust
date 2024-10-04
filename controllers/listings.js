@@ -8,6 +8,7 @@ module.exports.index = async (req, res) => {
     res.render("listings/index.ejs", { allListings });
 };
 
+
 module.exports.renderNewForm =  (req, res) => {
     res.render("listings/new.ejs");
 };
@@ -25,7 +26,12 @@ module.exports.showListing = async (req, res) => {
             req.flash("error", "Listing does not exist!");
             return res.redirect("/listings");
         }
-        // console.log(listing);
+        let response = await geocodingClient.forwardGeocode({
+            query: listing.location,
+            limit: 1
+          })
+          .send();
+          listing.geometry = response.body.features[0].geometry;
         res.render("listings/show.ejs", { listing });
     } catch (error) {
         req.flash("error", "Something went wrong!");
